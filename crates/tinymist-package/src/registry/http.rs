@@ -8,7 +8,7 @@ use reqwest::Certificate;
 use reqwest::blocking::Response;
 use tinymist_std::ImmutPath;
 use typst::diag::{EcoString, PackageResult, StrResult, eco_format};
-use typst::syntax::package::{PackageVersion, VersionlessPackageSpec};
+use typst::syntax::package::{PackageVersion, VersionBound, VersionlessPackageSpec};
 
 use super::{
     DEFAULT_REGISTRY, DummyNotifier, Notifier, PackageError, PackageRegistry, PackageSpec,
@@ -244,6 +244,7 @@ impl PackageStorage {
                     name: EcoString,
                     version: PackageVersion,
                     description: Option<EcoString>,
+                    compiler: Option<VersionBound>,
                 }
 
                 let indices: Vec<RemotePackageIndex> = match serde_json::from_reader(reader) {
@@ -256,15 +257,16 @@ impl PackageStorage {
 
                 indices
                     .into_iter()
-                    .map(|index| {
-                        (
+                    .filter_map(|index| {
+                        Some((
                             PackageSpec {
                                 namespace: "preview".into(),
                                 name: index.name,
                                 version: index.version,
+                                compiler: index.compiler,
                             },
                             index.description,
-                        )
+                        ))
                     })
                     .collect::<Vec<_>>()
             })

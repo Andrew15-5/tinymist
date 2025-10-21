@@ -1,6 +1,8 @@
 //! Package Registry.
 
+use std::fmt::Display;
 use std::num::NonZeroUsize;
+use std::sync::LazyLock;
 use std::{path::Path, sync::Arc};
 
 use ecow::EcoString;
@@ -23,8 +25,21 @@ mod http;
 #[cfg(feature = "http-registry")]
 pub use http::*;
 
+// Useful for the PoC.
+/// Wrapper to make `DEFAULT_REGISTRY` const, but being able to change its value
+/// via the `TYPST_DEFAULT_REGISTRY` environment variable.
+pub struct DefaultRegistry(LazyLock<String>);
+
+impl Display for DefaultRegistry {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", *self.0)
+    }
+}
+
 /// The default Typst registry.
-pub const DEFAULT_REGISTRY: &str = "https://packages.typst.org";
+pub const DEFAULT_REGISTRY: DefaultRegistry = DefaultRegistry(LazyLock::new(|| {
+    std::env::var("TYPST_DEFAULT_REGISTRY").unwrap_or("https://packages.typst.org".into())
+}));
 
 /// A trait for package registries.
 pub trait PackageRegistry {

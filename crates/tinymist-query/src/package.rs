@@ -48,6 +48,7 @@ pub fn get_manifest_id(spec: &PackageInfo) -> StrResult<FileId> {
             namespace: spec.namespace.clone(),
             name: spec.name.clone(),
             version: spec.version.parse()?,
+            compiler: None,
         }),
         VirtualPath::new("typst.toml"),
     ))
@@ -140,6 +141,7 @@ pub fn list_package_by_namespace(
                     namespace: ns.clone(),
                     name: package.file_name().to_string_lossy().into(),
                     version,
+                    compiler: None,
                 };
                 packages.push((package_version_path, spec));
             }

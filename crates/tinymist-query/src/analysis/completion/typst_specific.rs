@@ -1,7 +1,7 @@
 //! Completion by typst specific semantics, like `font`, `package`, `label`, or
 //! `typst::foundations::Value`.
 
-use typst::foundations::Symbol;
+use typst::{foundations::Symbol, syntax::package::PackageVersion};
 
 use super::*;
 impl CompletionPair<'_, '_, '_> {
@@ -43,6 +43,11 @@ impl CompletionPair<'_, '_, '_> {
         );
 
         packages.sort_by_key(|(spec, _)| (&spec.namespace, &spec.name, Reverse(spec.version)));
+        let current = PackageVersion::compiler();
+        packages.retain(|(spec, _)| {
+            spec.compiler.map(|required| current.matches_ge(&required))
+                .unwrap_or(true)
+        });
         if !all_versions {
             packages.dedup_by_key(|(spec, _)| (&spec.namespace, &spec.name));
         }

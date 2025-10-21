@@ -124,6 +124,7 @@ impl WorkspaceId {
             namespace: WorkspaceResolver::WORKSPACE_NS.clone(),
             name: eco_format!("p{}", self.0),
             version: NO_VERSION,
+            compiler: None,
         }
     }
 
@@ -132,6 +133,7 @@ impl WorkspaceId {
             namespace: WorkspaceResolver::WORKSPACE_NS.clone(),
             name: eco_format!("p{}", self.0),
             version: UNTITLED_ROOT,
+            compiler: None,
         }
     }
 
